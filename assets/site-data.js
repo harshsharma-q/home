@@ -160,11 +160,22 @@
   };
   const attendedEvents = talks => (talks || []).filter(item => hasContent(item) && !clean(item.title));
 
-  // Teaching rows whose role mentions an assistantship go under "Teaching assistantships".
-  const groupTeaching = rows => {
-    const all = (rows || []).filter(hasContent);
-    const assistant = row => /assistant|\bTA\b/i.test(clean(row.role));
-    return { courses: all.filter(row => !assistant(row)), assistantships: all.filter(assistant) };
+
+  // Teaching rows grouped by institution, in the order the institutions first appear. A note that
+  // every row of an institution shares (such as "As part of …") belongs to the group, not the rows.
+  const teachingByInstitution = rows => {
+    const groups = [];
+    (rows || []).filter(hasContent).forEach(row => {
+      const institution = clean(row.institution);
+      let group = groups.find(item => item.institution === institution);
+      if (!group) groups.push(group = { institution, rows: [] });
+      group.rows.push(row);
+    });
+    return groups.map(group => {
+      const notes = [...new Set(group.rows.map(row => clean(row.notes)))];
+      const note = notes.length === 1 ? notes[0] : "";
+      return { ...group, note, rows: note ? group.rows.map(row => ({ ...row, notes: "" })) : group.rows };
+    });
   };
 
   // ---------- CV options ----------
@@ -207,7 +218,7 @@
     clean, esc, rich, plain, hasContent, isPlaceholder, arxivId, doiOf, yesNo,
     parseCsv, loadSheet,
     yearOf, splitAuthors, isJournal, journalName, shortRef, mergePublications, findPaper, paperRefs, bibtex,
-    groupResearch, isPoster, groupTalks, attendedEvents, groupTeaching,
+    groupResearch, isPoster, groupTalks, attendedEvents, teachingByInstitution,
     CV_SECTIONS, cvSettings,
   };
 })(typeof window !== "undefined" ? window : globalThis);

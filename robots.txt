@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://harshsharma-q.github.io/portfolio/sitemap.xml
+Sitemap: https://harsh-sharma.in/sitemap.xml

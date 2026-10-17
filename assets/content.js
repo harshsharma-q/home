@@ -8,8 +8,8 @@
   reads the same data. Everything after the equals sign must stay valid JSON:
   double quotes, no trailing commas, no comments.
 
-  Rows with PLACEHOLDER in any cell are waiting for real data: the pages show
-  "to be added" instead, and the CV leaves them out.
+  Rows with PLACEHOLDER in any cell are waiting for real data: the pages leave
+  them out (showing "To be added." when nothing else is left), and so does the CV.
 */
 window.SITE_CONTENT = {
   "profile": {
@@ -127,8 +127,23 @@ window.SITE_CONTENT = {
     { "year": "2018", "type": "Camp", "title": "", "event": "NIUS Exposure-cum-Nurture Camp", "venue": "HBCSE, TIFR, Mumbai", "eventUrl": "https://nius.hbcse.tifr.res.in/", "eventLabel": "", "videoUrl": "" }
   ],
   "teaching": [
-    { "period": "PLACEHOLDER", "role": "Instructor", "course": "PLACEHOLDER: course title", "institution": "PLACEHOLDER: institution", "hours": "", "level": "", "notes": "PLACEHOLDER: replace with a course taught as a Prime Minister's Research Fellow" },
-    { "period": "PLACEHOLDER", "role": "Teaching assistant", "course": "PLACEHOLDER: course code and title", "institution": "IIT Bombay", "hours": "", "level": "", "notes": "PLACEHOLDER: replace with a teaching assistantship at IIT Bombay" }
+    { "period": "Aug – Oct 2025", "role": "Lectures and tutorials (online)", "course": "P101 Introductory Physics I", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "17", "level": "", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Mar – May 2025", "role": "Lectures and tutorials (online)", "course": "P601 Electrodynamics", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "18", "level": "", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Sep – Dec 2024", "role": "Lectures and tutorials (online)", "course": "P301 Mathematical Physics I", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "33 hours, shared with P502", "level": "", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Sep – Dec 2024", "role": "Lectures, tutorials and mid-term evaluation (online)", "course": "P502 Quantum Mechanics II", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "33 hours, shared with P301", "level": "", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Feb – May 2024", "role": "Lectures and tutorials (online)", "course": "P601 Electrodynamics", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "25", "level": "", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Aug – Nov 2023", "role": "Lectures and tutorials (online)", "course": "P301 Mathematical Physics I", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "25 hours, shared with P502", "level": "", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Aug – Nov 2023", "role": "Lectures and tutorials (online)", "course": "P502 Classical Mechanics II", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "25 hours, shared with P301", "level": "", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Feb – May 2023", "role": "", "course": "P403 Statistical Mechanics", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "1 hour a week", "level": "Semester 4", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Feb – May 2023", "role": "", "course": "P601 Electrodynamics", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "2 hours a week", "level": "Semester 6", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Feb – May 2023", "role": "", "course": "P802 Fluid Mechanics", "topics": "", "institution": "Center for Basic Sciences, Pt. Ravishankar Shukla University, Raipur", "hours": "1 hour a week", "level": "Semester 8", "notes": "As part of the Prime Minister's Research Fellowship" },
+    { "period": "Autumn 2025", "role": "Teaching assistant", "course": "PH434 Programming Lab", "topics": "Python programming for physics", "institution": "IIT Bombay", "hours": "", "level": "M.Sc. Physics, first year", "notes": "" },
+    { "period": "Spring 2025", "role": "Teaching assistant", "course": "PH112 Physics Lab", "topics": "Laser interference experiment", "institution": "IIT Bombay", "hours": "", "level": "B.Tech., first year", "notes": "" },
+    { "period": "Autumn 2024", "role": "Teaching assistant", "course": "PH434 Programming Lab", "topics": "Python programming for physics", "institution": "IIT Bombay", "hours": "", "level": "M.Sc. Physics, first year", "notes": "" },
+    { "period": "Spring 2024", "role": "Teaching assistant", "course": "PH112 Physics Lab", "topics": "Laser interference experiment", "institution": "IIT Bombay", "hours": "", "level": "B.Tech., first year", "notes": "" },
+    { "period": "Autumn 2023", "role": "Teaching assistant", "course": "PH434 Programming Lab", "topics": "Python programming for physics", "institution": "IIT Bombay", "hours": "", "level": "M.Sc. Physics, first year", "notes": "" },
+    { "period": "Spring 2023", "role": "Teaching assistant", "course": "PH601 Advanced Quantum Information and Computation", "topics": "", "institution": "IIT Bombay", "hours": "", "level": "", "notes": "" },
+    { "period": "Sep 2021 – Jan 2022", "role": "Junior teaching assistant", "course": "PH1130 Physics Laboratory", "topics": "Equipotential lines experiment", "institution": "IIT Palakkad", "hours": "", "level": "B.Tech., first year", "notes": "" }
   ],
   "education": [
     { "period": "2022 – 2027", "degree": "PhD in Physics", "institution": "Indian Institute of Technology Bombay", "detail": "Expected completion: July 2027" },
@@ -147,7 +162,10 @@ window.SITE_CONTENT = {
     { "year": "2020", "title": "Joint Admission Test for M.Sc. (JAM)", "organization": "All India Rank 666" }
   ],
   "visits": [
-    { "period": "2023", "institution": "Simon Fraser University, Canada", "host": "PLACEHOLDER: host", "detail": "PLACEHOLDER: dates of the visit supported by the SFU–Mitacs Globalink Research Award" }
+    { "period": "Mar 2025", "institution": "University of Chicago, USA", "host": "Liang Jiang", "detail": "Presented my work on quantum error correction" },
+    { "period": "Mar 2025", "institution": "University of Chicago, USA", "host": "Tian Zhong", "detail": "" },
+    { "period": "1–15 Jul 2024", "institution": "Simon Fraser University, Canada", "host": "Hoi-Kwan Lau", "detail": "" },
+    { "period": "Sep – Nov 2023", "institution": "Simon Fraser University, Canada", "host": "Hoi-Kwan Lau", "detail": "Supported by the SFU–Mitacs Globalink Research Award" }
   ],
   "cvOptions": {
     "pageLimit": 2,

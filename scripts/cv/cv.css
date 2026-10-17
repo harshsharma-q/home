@@ -7,7 +7,7 @@
 */
 @page {
   size: A4;
-  margin: 18mm 17mm 20mm;
+  margin: 15mm 17mm 17mm;
   /* Margin boxes do not see :root variables, so their values are written out. */
   @bottom-left { font: 10pt/1.3 "Inter", "Segoe UI", Arial, sans-serif; color: #5f6b72; }
   @bottom-right { font: 10pt/1.3 "Inter", "Segoe UI", Arial, sans-serif; color: #5f6b72; font-variant-numeric: tabular-nums; }
@@ -20,7 +20,7 @@
   --accent: #1d6b65;
   --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
   --sans: "Inter", "Segoe UI", Arial, sans-serif;
-  --date: 25mm;
+  --date: 26mm;
 }
 
 * { box-sizing: border-box; }
@@ -40,7 +40,7 @@ p { margin: 0; }
 .contact { flex: none; max-width: 60%; margin: 0; padding: 0; list-style: none; text-align: right; line-height: 1.5; }
 
 /* Sections */
-section { margin-top: 6mm; }
+section { margin-top: 5mm; }
 h2 { margin: 0 0 2.5mm; padding-bottom: 1mm; border-bottom: 0.5pt solid var(--line); font: 600 13pt/1.25 var(--serif); }
 h3 { margin: 3.5mm 0 1.5mm; color: var(--muted); font: 600 10pt/1.3 var(--sans); letter-spacing: 0.05em; text-transform: uppercase; }
 h2 + .keep > h3 { margin-top: 0; }
@@ -48,9 +48,10 @@ h2 + .keep > h3 { margin-top: 0; }
 /* Keeps a heading with the block after it, and keeps every entry on one page. */
 .keep, .entry, .talk, .interest { break-inside: avoid; }
 
-.entry { display: grid; grid-template-columns: var(--date) minmax(0, 1fr); margin-bottom: 2mm; }
-.entry .date { color: var(--muted); font-variant-numeric: tabular-nums; }
+.entry { display: grid; grid-template-columns: var(--date) minmax(0, 1fr); margin-bottom: 1.6mm; }
+.entry .date { padding-right: 1.5mm; color: var(--muted); font-variant-numeric: tabular-nums; }
 .detail { color: var(--muted); }
+.course-list { margin-top: 0.5mm; }
 
 .interest { margin-bottom: 1.5mm; }
 .interest .label { font-weight: 600; }
