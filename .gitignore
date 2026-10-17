@@ -2,3 +2,4 @@ private/
 *.inspect.ndjson
 __pycache__/
 *.pyc
+assets/cv.pdf

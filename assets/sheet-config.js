@@ -7,7 +7,9 @@
 
   Each tab is used only if its first row contains the listed columns. A tab
   that is missing or renamed is ignored and the copy in assets/content.js is
-  shown instead. See the "Read me" tab in the Sheet for editing rules.
+  shown instead. The last five tabs are optional. CVOptions is read only by the
+  CV build (scripts/build_cv.mjs). See README.md and the "Read me" tab in the
+  Sheet for editing rules.
 */
 window.SHEET_CONFIG = {
   enabled: true,
@@ -19,5 +21,10 @@ window.SHEET_CONFIG = {
     education: { name: "Education", columns: ["period", "degree", "institution"] },
     awards: { name: "Awards", columns: ["year", "title", "organization"] },
     qualifications: { name: "Qualifications", columns: ["year", "title", "organization"] },
+    research: { name: "Research", columns: ["title", "text", "papers"] },
+    projects: { name: "Projects", columns: ["title", "text", "papers"] },
+    teaching: { name: "Teaching", columns: ["period", "role", "course", "institution", "hours", "level", "notes"] },
+    visits: { name: "Visits", columns: ["period", "institution", "host", "detail"] },
+    cvOptions: { name: "CVOptions", columns: ["section", "include", "scope"] },
   },
 };
