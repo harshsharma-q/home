@@ -27,6 +27,8 @@ jobs:
           node --check assets/sheet-config.js
           node --check assets/publications.js
           node --check assets/site.js
+          node --check assets/site-data.js
+          node --check scripts/build_cv.mjs
       - name: Refresh publications from arXiv
         if: github.event_name != 'push'
         run: python3 scripts/update_arxiv.py
@@ -38,6 +40,9 @@ jobs:
           git add assets/publications.js
           git diff --cached --quiet || git commit -m "Update publications from arXiv"
           git push || true
+      - name: Build CV (assets/cv.pdf)
+        continue-on-error: true
+        run: node scripts/build_cv.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
