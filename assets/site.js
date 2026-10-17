@@ -22,7 +22,7 @@
     publications: ["profile", "publications"],
     talks: ["profile", "talks"],
     teaching: ["profile", "teaching"],
-    cv: ["profile", "education", "awards", "qualifications"],
+    cv: ["profile", "education", "awards", "visits", "qualifications"],
   };
 
   const renderChrome = () => {
@@ -127,8 +127,8 @@
       "@context": "https://schema.org",
       "@type": "Person",
       name: profile.name,
-      url: "https://harshsharma-q.github.io/portfolio/",
-      image: "https://harshsharma-q.github.io/portfolio/assets/harsh-sharma.jpg",
+      url: "https://harsh-sharma.in/",
+      image: "https://harsh-sharma.in/assets/harsh-sharma.jpg",
       jobTitle: profile.title,
       email: profile.email ? `mailto:${profile.email}` : undefined,
       affiliation: { "@type": "CollegeOrUniversity", name: "Indian Institute of Technology Bombay", url: "https://www.iitb.ac.in/" },
@@ -140,7 +140,7 @@
   // ---------- publications ----------
   const renderPublicationList = (target, papers, selfName) => {
     const authorHtml = authors => S.splitAuthors(authors).map(name => name === selfName ? `<strong>${esc(name)}</strong>` : esc(name)).join(", ");
-    $(target).innerHTML = papers.map(item => {
+    const entries = papers.map(item => {
       const venue = S.isJournal(item) ? esc(S.journalName(item)) : item.id ? `Preprint, arXiv:${esc(item.id)}` : "";
       const titleUrl = paperUrl(item);
       const links = [
@@ -153,10 +153,10 @@
         <h3>${titleUrl ? `<a href="${esc(titleUrl)}" target="_blank" rel="noreferrer">${esc(item.title)}</a>` : esc(item.title)}</h3>
         <p class="pub-authors">${authorHtml(item.authors)}</p>
         ${venue ? `<p class="pub-venue">${venue}</p>` : ""}
-        ${clean(item.summary) ? `<p class="pub-summary">${rich(item.summary)}</p>` : ""}
         <p class="entry-links">${links.join("")}</p>
       </div></article>`;
-    }).join("") || `<p class="placeholder-note">None at the moment.</p>`;
+    }).join("");
+    $(target).innerHTML = entries ? `<div class="pub-list">${entries}</div>` : `<p class="placeholder-note">None at the moment.</p>`;
   };
 
   const renderPublications = (papers, profile) => {
@@ -180,7 +180,7 @@
     $("talk-list").innerHTML = S.groupTalks(talks).map(group => `<article class="talk"><h3>${esc(group.title)}</h3><ul>${group.items.map(item => {
       const where = [item.event, item.venue].map(clean).filter(Boolean).map(esc).join(", ");
       const links = [external(item.eventUrl, clean(item.eventLabel) || "Event"), external(item.videoUrl, "Video")].filter(Boolean).join("");
-      return `<li><span class="entry-year">${esc(item.year)}</span><span>${clean(item.type) ? `${esc(item.type)} · ` : ""}${where}${links ? ` <span class="entry-links">${links}</span>` : ""}</span></li>`;
+      return `<li><span class="entry-year">${esc(item.year)}</span><span class="talk-type">${clean(item.type) ? `<span class="pill">${esc(item.type)}</span>` : ""}</span><span>${where}</span>${links ? `<span class="entry-links">${links}</span>` : ""}</li>`;
     }).join("")}</ul></article>`).join("") || `<p class="placeholder-note">None at the moment.</p>`;
 
     $("attended-list").innerHTML = block(S.attendedEvents(talks), item => {
@@ -190,23 +190,28 @@
   };
 
   // ---------- teaching ----------
+  // Teaching assistantships, grouped by institution. A note that all of an institution's rows
+  // share is shown once under its name; each course and term is its own row.
   const renderTeaching = rows => {
-    const { courses, assistantships } = S.groupTeaching(rows);
-    const list = (target, items) => {
-      $(target).innerHTML = datedBlock(items, row => {
-        const meta = [row.role, row.level, clean(row.hours) && `${clean(row.hours)} hours`].map(clean).filter(Boolean).map(esc).join(" · ");
-        const where = clean(row.institution) ? `, ${esc(row.institution)}` : "";
-        return datedRow(row.period, `<strong>${esc(row.course)}</strong>${where}${meta ? `<small>${meta}</small>` : ""}${detail(row.notes)}`);
-      }) || `<p class="placeholder-note">To be added.</p>`;
-    };
-    list("course-list", courses);
-    list("assistantship-list", assistantships);
+    $("teaching-list").innerHTML = S.teachingByInstitution(rows).map(group => {
+      const list = datedBlock(group.rows, row => {
+        const role = /^teaching assistant$/i.test(clean(row.role)) ? "" : row.role;
+        const hours = /^\d+(?:\.\d+)?$/.test(clean(row.hours)) ? `${clean(row.hours)} hours` : row.hours;
+        const meta = [role, row.level, hours].map(clean).filter(Boolean).map(esc).join(" · ");
+        const topics = clean(row.topics) ? `<small>Topics: ${rich(row.topics)}</small>` : "";
+        return datedRow(row.period, `<strong>${esc(row.course)}</strong>${meta ? `<small>${meta}</small>` : ""}${topics}${detail(row.notes)}`);
+      });
+      return `<div class="teaching-group"><h3>${esc(group.institution)}</h3>${group.note ? `<p class="section-lead">${rich(group.note)}</p>` : ""}${list}</div>`;
+    }).join("") || `<p class="placeholder-note">To be added.</p>`;
   };
 
   // ---------- CV ----------
   const renderBackground = data => {
     $("education-list").innerHTML = datedBlock(data.education || [], item => datedRow(item.period, `<strong>${esc(item.degree)}</strong>, ${esc(item.institution)}${detail(item.detail)}`));
     $("award-list").innerHTML = datedBlock(data.awards || [], item => datedRow(item.year, `<strong>${esc(item.title)}</strong>, ${esc(item.organization)}${detail(item.detail)}`));
+    const visits = (data.visits || []).filter(S.hasContent);
+    $("visits").hidden = !visits.length;
+    $("visit-list").innerHTML = datedBlock(visits, item => datedRow(item.period, `<strong>${esc(item.institution)}</strong>${clean(item.host) ? `<small>Host: ${esc(item.host)}</small>` : ""}${detail(item.detail)}`));
     const exams = data.qualifications || [];
     $("qualifications").hidden = !exams.length;
     $("qualification-list").innerHTML = datedBlock(exams, item => datedRow(item.year, `${esc(item.title)}: ${esc(item.organization)}`));

@@ -1,7 +1,7 @@
 # Harsh Sharma — Academic Website
 
 A small academic website with a downloadable CV, published with GitHub Pages at
-https://harshsharma-q.github.io/portfolio/. It is plain HTML, CSS and JavaScript
+https://harsh-sharma.in/. It is plain HTML, CSS and JavaScript
 with no build step for the site.
 
 ## Pages
@@ -11,8 +11,8 @@ with no build step for the site.
 | `index.html` | About (bio, availability, links), research interests (`#research`), ongoing projects (`#projects`), contact footer (`#contact`) |
 | `publications.html` | Journal articles and preprints, with arXiv, PDF, DOI and BibTeX links |
 | `talks.html` | Talks and posters; schools and workshops attended |
-| `teaching.html` | Courses taught; teaching assistantships |
-| `cv.html` | Education, fellowships and awards, national examinations (when listed), and **Download CV (PDF)** |
+| `teaching.html` | Teaching assistantships, grouped by institution |
+| `cv.html` | Education, fellowships and awards, research visits, national examinations (when listed), and **Download CV (PDF)** |
 
 Every page has the same header and footer. They are defined once, in
 `assets/site.js` (the `NAV` list), and the current page is highlighted.
@@ -30,20 +30,20 @@ renamed or has other column names is ignored, and the bundled copy in
 | Tab | First-row columns | Used for |
 | --- | --- | --- |
 | `Profile` | `field`, `value` | One row per field: `name`, `title`, `bio`, `availability`, `email`, `address`, `photo`, `cv`, `scholar`, `arxiv`, `orcid`, `linkedin`, `github`. Blank values are hidden. Each line of `bio` is a paragraph. `cv` may link to a PDF that replaces the built CV. |
-| `Publications` | `arxiv`, `title`, `authors`, `journal`, `doi`, `summary` | Adds summaries, journal references and papers that are not in the arXiv feed. Write IDs as `arXiv:2408.11628`. |
+| `Publications` | `arxiv`, `title`, `authors`, `journal`, `doi`, `summary` | Adds journal references and papers that are not in the arXiv feed. Write IDs as `arXiv:2408.11628`. The `summary` column is kept but not shown, because the research interests describe the work. |
 | `Talks` | `year`, `type`, `title`, `event`, `venue` (optional: `eventUrl`, `eventLabel`, `videoUrl`) | Rows with a title are talks or posters; rows without one are schools and workshops attended. |
 | `Education` | `period`, `degree`, `institution` (optional: `detail`) | CV page and CV. |
 | `Awards` | `year`, `title`, `organization` (optional: `detail`) | "Fellowships and awards" on the CV page and in the CV. |
 | `Qualifications` | `year`, `title`, `organization` | "National examinations" on the CV page. Keep only the first row to hide the section. |
 | `Research` *(optional)* | `title`, `text`, `papers` (optional: `group`) | Research interests on the home page. `papers` lists arXiv IDs or DOIs; each is shown as a link to that paper. Consecutive rows with the same `group` (for example `Main interests`) appear under that heading. A row without a title is an introductory paragraph. |
 | `Projects` *(optional)* | `title`, `text`, `papers` | Ongoing projects on the home page, in row order; the section is hidden when there are none. Published papers and preprints are listed on the Publications page only. `papers` lists the published work a project builds on (arXiv IDs or DOIs), shown as "Builds on: …". |
-| `Teaching` *(optional)* | `period`, `role`, `course`, `institution`, `hours`, `level`, `notes` | Teaching page and CV. Rows whose `role` contains "assistant" (or "TA") are listed under "Teaching assistantships"; all others under "Courses taught". |
-| `Visits` *(optional)* | `period`, `institution`, `host`, `detail` | Research visits, shown only in the CV. |
+| `Teaching` *(optional)* | `period`, `role`, `course`, `institution`, `hours`, `level`, `notes` (optional: `topics`) | "Teaching assistantships" on the Teaching page and in the CV, grouped by institution in row order. A note that every row of an institution shares (for example "As part of the Prime Minister's Research Fellowship") is shown once under the institution. `topics` says what you taught or ran (for example a lab experiment) and is shown as "Topics: …". |
+| `Visits` *(optional)* | `period`, `institution`, `host`, `detail` | Research visits on the CV page and in the CV. |
 | `CVOptions` *(optional)* | `section`, `include`, `scope` | CV sections and page limit (see below). |
 
 Rows with the word `PLACEHOLDER` in any cell are waiting for real data: the
-pages show "To be added." and the CV leaves them out. `assets/content.js`
-currently uses placeholders for teaching and for the SFU–Mitacs research visit.
+pages and the CV leave them out (a section with nothing left shows "To be
+added." on the Teaching page).
 
 Do not rename tabs or change the first row of a tab. Links can be written in any
 text as `[label](https://…)`. Everything in the Sheet is public.
@@ -65,8 +65,7 @@ JSON, which the deploy workflow checks.
 
 `.github/workflows/pages.yml` refreshes `assets/publications.js` weekly from the
 arXiv author feed (`sharma_h_2`), so new preprints appear automatically. Rows in
-the Publications tab are matched by arXiv ID and add a summary or override
-fields. Papers with a journal reference are listed as journal articles; the
+the Publications tab are matched by arXiv ID and override or add fields. Papers with a journal reference are listed as journal articles; the
 rest as preprints.
 
 The J. Phys. A paper (arXiv:2302.07003) is not in the author feed, because it was
@@ -109,7 +108,7 @@ the order always follows `content.js`.
 | `fellowships and awards` | — |
 | `talks` | `all` (default), `talks` (leave out posters), `since:YYYY`; combine with spaces |
 | `research visits` | — |
-| `teaching` | `all` (default), `courses`, `assistantships` |
+| `teaching` | — (all rows, grouped by institution, under "Teaching assistantships") |
 | `schools attended` | `all` (default), `since:YYYY` |
 | `referees` | — (prints "Available on request.") |
 

@@ -36,7 +36,7 @@
     fellowships and awards
     talks                   all | talks (no posters), and optionally since:YYYY
     research visits
-    teaching                all | courses | assistantships
+    teaching                (all rows, grouped by institution)
     schools attended        all, and optionally since:YYYY
     referees
 
@@ -62,7 +62,7 @@ import { inflateSync } from "node:zlib";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_FILES = ["assets/content.js", "assets/sheet-config.js", "assets/publications.js", "assets/site-data.js"];
 const CV_TABS = ["profile", "publications", "talks", "education", "awards", "research", "teaching", "visits", "cvOptions"];
-const WEBSITE = "https://harshsharma-q.github.io/portfolio/";
+const WEBSITE = "https://harsh-sharma.in/";
 const FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap";
 const SHEET_TIMEOUT_MS = 20000;
 const FONT_BUDGET_MS = 15000;
@@ -159,7 +159,7 @@ const applyOptions = (settings, data, S) => {
 const SCOPES = {
   "research interests": /^(?:titles|full)?$/i,
   talks: /^(?:(?:all|talks|since:\d{4})(?:\s+|$))*$/i,
-  teaching: /^(?:all|courses|assistantships)?$/i,
+  teaching: /^(?:all)?$/i,
   "schools attended": /^(?:(?:all|since:\d{4})(?:\s+|$))*$/i,
 };
 
@@ -198,10 +198,36 @@ const makeSections = ({ S, data, papers, selfName }) => {
     return `<div>${authors}</div><div class="pub-title">${esc(item.title)}</div>${venue ? `<div class="pub-venue">${venue}</div>` : ""}`;
   };
 
-  const teachingEntry = row => {
-    const hours = /^\d+(?:\.\d+)?$/.test(clean(row.hours)) ? `${clean(row.hours)} hours` : clean(row.hours);
-    const role = [row.role, row.level, hours].map(clean).filter(Boolean).map(esc).join(", ");
-    return entry(row.period, joined(strong(row.course), esc(row.institution)) + detail(role) + detail(rich(row.notes)));
+  // The website lists every course and term; the CV summarises them. Each institution is one entry
+  // (its years in the date column), and each course is named once with its terms collapsed:
+  // "PH434 Programming Lab, M.Sc. Physics, first year (Autumn 2023–2025)".
+  const yearsOf = periods => [...new Set(periods.flatMap(period => clean(period).match(/(?:19|20)\d{2}/g) || []).map(Number))].sort();
+  const yearSpan = years => years.length ? (years.length > 1 ? `${years[0]} – ${years.at(-1)}` : `${years[0]}`) : "";
+  const terms = periods => {
+    const years = yearsOf(periods);
+    const consecutive = years.every((year, index) => !index || year === years[index - 1] + 1);
+    const label = consecutive && years.length > 1 ? `${years[0]}–${years.at(-1)}` : years.join(", ");
+    const seasons = new Set(periods.map(period => clean(period).match(/^(Spring|Summer|Autumn|Fall|Winter)\s+(?:19|20)\d{2}$/i)?.[1]));
+    const season = seasons.size === 1 ? [...seasons][0] : null;
+    return season ? `${season} ${label}` : label;
+  };
+  const teachingBlocks = group => {
+    const courses = new Map();
+    group.rows.forEach(row => {
+      const key = clean(row.course);
+      if (!courses.has(key)) courses.set(key, []);
+      courses.get(key).push(row);
+    });
+    // A role or level is printed only when every term of the course has the same one.
+    const shared = (rows, field) => { const values = new Set(rows.map(row => clean(row[field]))); return values.size === 1 ? [...values][0] : ""; };
+    const list = [...courses].map(([course, rows]) => {
+      const role = shared(rows, "role");
+      const special = /assistant/i.test(role) && !/^teaching assistant$/i.test(role) ? role.toLowerCase() : "";
+      const facts = [course, special, shared(rows, "level")].filter(Boolean).map(esc).join(", ");
+      return `${facts} (${esc(terms(rows.map(row => row.period)))})`;
+    });
+    const note = group.note ? detail(rich(group.note)) : "";
+    return [entry(yearSpan(yearsOf(group.rows.map(row => row.period))), `${strong(group.institution)}${note}<div class="course-list">${list.join("; ")}.</div>`)];
   };
 
   return {
@@ -267,14 +293,12 @@ const makeSections = ({ S, data, papers, selfName }) => {
       return { count: rows.length, blocks: rows.map(row => entry(row.period, `${strong(row.institution)}${clean(row.host) ? ` (host: ${esc(row.host)})` : ""}${detail(rich(row.detail))}`)) };
     },
 
-    teaching: scope => {
-      const kind = clean(scope).toLowerCase();
-      const groups = S.groupTeaching(usable(data.teaching));
-      const courses = kind === "assistantships" ? [] : groups.courses;
-      const assistantships = kind === "courses" ? [] : groups.assistantships;
+    teaching: () => {
+      const groups = S.teachingByInstitution(usable(data.teaching));
       return {
-        count: courses.length + assistantships.length,
-        blocks: [...subsection("Courses taught", courses.map(teachingEntry)), ...subsection("Teaching assistantships", assistantships.map(teachingEntry))],
+        count: groups.reduce((sum, group) => sum + group.rows.length, 0),
+        heading: "Teaching assistantships",
+        blocks: groups.flatMap(teachingBlocks),
       };
     },
 

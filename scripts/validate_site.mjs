@@ -4,15 +4,15 @@ import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const site = "https://harshsharma-q.github.io/portfolio/";
+const site = "https://harsh-sharma.in/";
 const scripts = ["assets/content.js", "assets/sheet-config.js", "assets/publications.js", "assets/site-data.js", "assets/site.js"];
 // Pages in navigation order: the data-page key site.js uses, and the elements it fills in.
 const pages = {
   "index.html": { key: "home", ids: ["about", "research", "projects", "profile-name", "profile-title", "profile-bio", "profile-availability", "profile-links", "profile-portrait", "profile-photo", "research-list", "project-list"] },
   "publications.html": { key: "publications", ids: ["publication-profiles", "publication-profiles-line", "journal-list", "preprint-list"] },
   "talks.html": { key: "talks", ids: ["talk-list", "attended-list"] },
-  "teaching.html": { key: "teaching", ids: ["course-list", "assistantship-list"] },
-  "cv.html": { key: "cv", ids: ["education-list", "award-list", "qualifications", "qualification-list"] },
+  "teaching.html": { key: "teaching", ids: ["assistantships", "teaching-list"] },
+  "cv.html": { key: "cv", ids: ["education-list", "award-list", "visits", "visit-list", "qualifications", "qualification-list"] },
 };
 const redirects = {
   "research.html": "index.html#research",
