@@ -63,7 +63,7 @@ JSON, which the deploy workflow checks.
 
 ## Publications from arXiv
 
-`.github/workflows/pages.yml` refreshes `assets/publications.js` weekly from the
+`.github/workflows/pages.yml` refreshes `assets/publications.js` every Monday and on manual runs from the
 arXiv author feed (`sharma_h_2`), so new preprints appear automatically. Rows in
 the Publications tab are matched by arXiv ID and override or add fields. Papers with a journal reference are listed as journal articles; the
 rest as preprints.
@@ -81,8 +81,10 @@ than 10 pt) from the same data as the website: the Sheet, falling back to
 with headless Chrome. It uses only Node built-ins and the Chrome that GitHub's
 Ubuntu runner already provides, so it adds no dependencies.
 
-The deploy workflow builds the CV on every push to `main`, on the weekly
-schedule (after the arXiv refresh) and on manual runs. The PDF is deployed with
+The deploy workflow builds the CV on every push to `main`, once a day at
+03:17 UTC (so Sheet edits reach the PDF by the next day) and on manual runs.
+To rebuild it right away, open **Actions → Deploy portfolio to GitHub Pages →
+Run workflow**, or run `gh workflow run pages.yml --repo harshsharma-q/home`. The PDF is deployed with
 the site but not committed (`assets/cv.pdf` is in `.gitignore`). The build step
 has `continue-on-error: true`: if it fails, the site still deploys and the CV
 links stay hidden until the next successful build.

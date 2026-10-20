@@ -2,8 +2,9 @@ name: Deploy portfolio to GitHub Pages
 on:
   push:
     branches: [main]
+  # Daily at 03:17 UTC: rebuilds the CV from the latest Sheet data.
   schedule:
-    - cron: "17 3 * * 1"
+    - cron: "17 3 * * *"
   workflow_dispatch:
 permissions:
   contents: write
@@ -29,11 +30,19 @@ jobs:
           node --check assets/site.js
           node --check assets/site-data.js
           node --check scripts/build_cv.mjs
+      # arXiv is refreshed on manual runs and on the Monday scheduled run, so the
+      # publication list (and its "Last updated" date) still changes at most weekly.
+      - name: Decide whether to refresh arXiv
+        id: arxiv
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || { [ "${{ github.event_name }}" = "schedule" ] && [ "$(date -u +%u)" = "1" ]; }; then
+            echo "refresh=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Refresh publications from arXiv
-        if: github.event_name != 'push'
+        if: steps.arxiv.outputs.refresh == 'true'
         run: python3 scripts/update_arxiv.py
       - name: Commit refreshed publication data
-        if: github.event_name != 'push'
+        if: steps.arxiv.outputs.refresh == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
