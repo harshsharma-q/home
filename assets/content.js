@@ -14,8 +14,8 @@
 window.SITE_CONTENT = {
   "profile": {
     "name": "Harsh Sharma",
-    "title": "PMRF Scholar, Department of Physics, IIT Bombay",
-    "bio": "I am a PhD candidate in physics at IIT Bombay and a Prime Minister's Research Fellow, working with [Prof. Himadri Shekhar Dhar](https://www.phy.iitb.ac.in/employee-profile/himadri-shekhar-dhar) on quantum information theory. My main research is on quantum error correction and quantum sensing with spin ensembles, using schemes that need only collective control and measurement, because individual spins are hard to address in most ensemble experiments. I have also worked on hybrid spin–cavity systems, quantum thermodynamics and multipartite entanglement.",
+    "title": "PMRF, Department of Physics, IIT Bombay",
+    "bio": "I am a PhD student in physics at IIT Bombay and a Prime Minister's Research Fellow, working with [Prof. Himadri Shekhar Dhar](https://www.phy.iitb.ac.in/employee-profile/himadri-shekhar-dhar) on quantum information theory. My main research is on quantum error correction and quantum sensing with spin ensembles, using schemes that need only collective control and measurement, because individual spins are hard to address in most ensemble experiments. I have also worked on hybrid spin–cavity systems, quantum thermodynamics and multipartite entanglement.",
     "availability": "I expect to complete my PhD in July 2027 and am looking for postdoctoral and research positions in quantum error correction and quantum sensing.",
     "email": "harsh.sharma@iitb.ac.in",
     "address": "Department of Physics, IIT Bombay, Powai, Mumbai 400076, India",
