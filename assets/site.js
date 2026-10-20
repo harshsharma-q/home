@@ -25,12 +25,44 @@
     cv: ["profile", "education", "awards", "visits", "qualifications"],
   };
 
+  // Small monochrome glyphs (generic shapes, not brand logos) for the buttons on the home page.
+  const svg = paths => `<svg class="icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">${paths}</svg>`;
+  const ICONS = {
+    envelope: svg(`<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>`),
+    document: svg(`<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>`),
+    link: svg(`<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>`),
+    user: svg(`<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>`),
+    menu: svg(`<path d="M4 7h16M4 12h16M4 17h16"/>`),
+  };
+
   const renderChrome = () => {
     $("site-header").innerHTML = `<div class="wrap header-inner">
       <a class="site-name" href="index.html">${esc(bundled.profile?.name)}</a>
-      <nav aria-label="Main">${NAV.map(item => `<a href="${item.href}"${item.page === page ? ' aria-current="page"' : ""}>${item.label}</a>`).join("")}</nav>
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">${ICONS.menu}</button>
+      <nav id="site-nav" aria-label="Main">${NAV.map(item => `<a href="${item.href}"${item.page === page ? ' aria-current="page"' : ""}>${item.label}</a>`).join("")}</nav>
     </div>`;
-    $("contact").innerHTML = `<div class="wrap footer-inner"><p id="footer-address"></p><p><a id="footer-email"></a></p></div>`;
+    $("contact").innerHTML = `<div class="wrap footer-inner">
+      <div class="footer-contact"><p id="footer-address"></p><p><a id="footer-email"></a></p></div>
+      <div class="footer-meta"><p id="footer-updated" hidden></p><p id="visit-count"></p></div>
+    </div>`;
+    renderUpdated();
+  };
+
+  // "Last updated": the weekly arXiv sync on the Publications page, otherwise the page file's
+  // Last-Modified header. The line stays hidden when neither date is available.
+  const renderUpdated = async () => {
+    let date;
+    const synced = /^(\d{4})-(\d{2})-(\d{2})$/.exec(window.PUBLICATIONS_UPDATED || "");
+    if (page === "publications" && synced) date = new Date(synced[1], synced[2] - 1, synced[3]);
+    else {
+      const header = await fetch(location.pathname, { method: "HEAD" }).then(response => response.headers.get("Last-Modified")).catch(() => null);
+      const modified = new Date(header);
+      if (header && !isNaN(modified)) date = modified;
+    }
+    if (!date) return;
+    const iso = [date.getFullYear(), date.getMonth() + 1, date.getDate()].map(part => String(part).padStart(2, "0")).join("-");
+    $("footer-updated").innerHTML = `Last updated <time datetime="${iso}">${date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</time>`;
+    $("footer-updated").hidden = false;
   };
 
   // The CV PDF is built by the deploy workflow. Its links appear only once the file exists,
@@ -82,17 +114,20 @@
     const availability = $("profile-availability");
     availability.innerHTML = rich(profile.availability);
     availability.hidden = !clean(profile.availability);
+    const PROFILE_ICONS = { scholar: "link", arxiv: "document", orcid: "user", linkedin: "user", github: "link" };
     $("profile-links").innerHTML = [
-      profile.email && `<li><a href="mailto:${esc(profile.email)}">${esc(profile.email)}</a></li>`,
-      `<li data-cv-item hidden><a data-cv-link target="_blank" rel="noreferrer">Download CV (PDF)</a></li>`,
-      ...profileLinks(profile).map(link => `<li>${link}</li>`),
+      profile.email && `<li><a class="button" href="mailto:${esc(profile.email)}">${ICONS.envelope}${esc(profile.email)}</a></li>`,
+      `<li data-cv-item hidden><a class="button button-primary" data-cv-link target="_blank" rel="noreferrer">${ICONS.document}Download CV (PDF)</a></li>`,
+      ...Object.keys(PROFILE_LINKS).filter(key => profile[key]).map(key => `<li><a class="button" href="${esc(profile[key])}" target="_blank" rel="noreferrer">${ICONS[PROFILE_ICONS[key]]}${esc(PROFILE_LINKS[key])}</a></li>`),
     ].filter(Boolean).join("");
     const portrait = $("profile-portrait");
     portrait.hidden = !profile.photo;
     if (profile.photo) { $("profile-photo").src = profile.photo; $("profile-photo").alt = `Portrait of ${profile.name || ""}`; }
   };
 
+  // The first labelled group (main interests) is shown as cards; later groups as a compact list.
   const renderResearch = (rows, papers) => {
+    let labelled = 0;
     $("research-list").innerHTML = S.groupResearch(rows).map(group => {
       const tag = group.label ? "h4" : "h3";
       const items = group.items.map(row => {
@@ -101,7 +136,8 @@
         const refs = related.length ? `<p class="refs">${related.length > 1 ? "Papers" : "Paper"}: ${related.map(refLink).join(", ")}</p>` : "";
         return `<article class="interest"><${tag}>${esc(row.title)}</${tag}><p>${rich(row.text)}</p>${refs}</article>`;
       }).join("");
-      return group.label ? `<h3 class="subhead">${esc(group.label)}</h3>${items}` : items;
+      if (!group.label) return items;
+      return `<h3 class="subhead">${esc(group.label)}</h3><div class="${labelled++ ? "interest-list" : "interest-grid"}">${items}</div>`;
     }).join("");
   };
 
@@ -262,6 +298,17 @@
   const onScroll = () => header.classList.toggle("scrolled", window.scrollY > 4);
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
+
+  // Below 720px the navigation folds behind a menu button.
+  const menuButton = header.querySelector(".menu-button");
+  const setMenu = open => {
+    header.classList.toggle("menu-open", open);
+    menuButton.setAttribute("aria-expanded", String(open));
+  };
+  menuButton.addEventListener("click", () => setMenu(!header.classList.contains("menu-open")));
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && header.classList.contains("menu-open")) { setMenu(false); menuButton.focus(); }
+  });
 
   // Wait briefly for the Sheet so visitors do not see the bundled copy flash first.
   if (config.enabled && config.spreadsheetId) {
