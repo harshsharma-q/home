@@ -11,7 +11,7 @@ with no build step for the site.
 | `index.html` | About (bio, availability, links), research interests (`#research`), ongoing projects (`#projects`), contact footer (`#contact`) |
 | `publications.html` | Journal articles and preprints, with arXiv, PDF, DOI and BibTeX links |
 | `talks.html` | Talks and posters; schools and workshops attended |
-| `teaching.html` | Teaching assistantships, grouped by institution |
+| `teaching.html` | Courses taught, grouped by institution, then course level, then subject, then term |
 | `cv.html` | Education, fellowships and awards, research visits, national examinations (when listed), and **Download CV (PDF)** |
 
 Every page has the same header and footer. They are defined once, in
@@ -37,7 +37,7 @@ renamed or has other column names is ignored, and the bundled copy in
 | `Qualifications` | `year`, `title`, `organization` | "National examinations" on the CV page. Keep only the first row to hide the section. |
 | `Research` *(optional)* | `title`, `text`, `papers` (optional: `group`) | Research interests on the home page. `papers` lists arXiv IDs or DOIs; each is shown as a link to that paper. Consecutive rows with the same `group` (for example `Main interests`) appear under that heading. A row without a title is an introductory paragraph. |
 | `Projects` *(optional)* | `title`, `text`, `papers` | Ongoing projects on the home page, in row order; the section is hidden when there are none. Published papers and preprints are listed on the Publications page only. `papers` lists the published work a project builds on (arXiv IDs or DOIs), shown as "Builds on: …". |
-| `Teaching` *(optional)* | `period`, `role`, `course`, `institution`, `hours`, `level`, `notes` (optional: `topics`) | "Teaching assistantships" on the Teaching page and in the CV, grouped by institution in row order. A note that every row of an institution shares (for example "As part of the Prime Minister's Research Fellowship") is shown once under the institution. `topics` says what you taught or ran (for example a lab experiment) and is shown as "Topics: …". |
+| `Teaching` *(optional)* | `period`, `role`, `course`, `institution`, `hours`, `level`, `notes` (optional: `topics`) | "Teaching assistantships" on the Teaching page and in the CV. Both group rows by institution in the order the institutions first appear; a note that every row of an institution shares (for example "As part of the Prime Minister's Research Fellowship") is shown once under the institution. Within each institution, the Teaching page groups rows by `level` (for example "B.Tech., first year"): programmes keep the order they first appear in, their years of study go up, and rows with no level come last as "Other courses". Under each level it lists the subjects, newest first, each followed by the periods it was taught in; identical rows are shown once, and a role, hours or topics that differ between periods are shown beside each period. `topics` says what you taught or ran (for example a lab experiment) and is shown as "Topics: …". |
 | `Visits` *(optional)* | `period`, `institution`, `host`, `detail` | Research visits on the CV page and in the CV. |
 | `CVOptions` *(optional)* | `section`, `include`, `scope` | CV sections and page limit (see below). |
 
