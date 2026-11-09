@@ -178,6 +178,60 @@
     });
   };
 
+  // A level such as "B.Tech., first year" or "Semester 6" split into its programme and year of
+  // study, so that levels sort by programme and then by year. A level without a year sorts last.
+  const ORDINAL_YEARS = ["first", "second", "third", "fourth", "fifth", "sixth"];
+  const levelParts = level => {
+    const year = /^(.*?)[,\s]*\b(first|second|third|fourth|fifth|sixth)\s+year$/i.exec(level);
+    if (year) return { programme: year[1], year: ORDINAL_YEARS.indexOf(year[2].toLowerCase()) + 1 };
+    const semester = /^(.*?)[,\s]*\bsemester\s+(\d+)$/i.exec(level);
+    if (semester) return { programme: semester[1], year: Math.ceil(Number(semester[2]) / 2) };
+    return { programme: level, year: 99 };
+  };
+
+  // Sort key for a free-text period such as "Aug – Dec 2025", "Sep 2021 – Jan 2022" or
+  // "Autumn 2024": its last year and the month it ends in.
+  const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  const periodKey = period => {
+    const text = clean(period).toLowerCase();
+    const years = text.match(/\b(?:19|20)\d{2}\b/g);
+    if (!years) return 0;
+    const months = [...text.matchAll(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b/g)].map(match => MONTHS.indexOf(match[1]) + 1);
+    const season = /autumn|fall/.test(text) ? 11 : /spring/.test(text) ? 5 : /summer/.test(text) ? 7 : 0;
+    return Number(years[years.length - 1]) * 100 + (months.length ? months[months.length - 1] : season);
+  };
+
+  // Teaching rows grouped by course level, then by subject (a course at an institution), then by
+  // term. Programmes keep the order they first appear in and their years of study go up; rows
+  // with no level come last. Subjects and terms are newest first, and a repeated row is shown
+  // once. A note that every row of a level shares belongs to the level, not the terms.
+  const teachingByLevel = rows => {
+    const levels = [];
+    (rows || []).filter(hasContent).forEach(row => {
+      const level = clean(row.level);
+      let group = levels.find(item => item.level === level);
+      if (!group) levels.push(group = { level, ...levelParts(level), rows: [] });
+      group.rows.push(row);
+    });
+    const programmes = [...new Set(levels.map(group => group.programme))];
+    levels.sort((a, b) => (!a.level - !b.level) || programmes.indexOf(a.programme) - programmes.indexOf(b.programme) || a.year - b.year);
+    return levels.map(group => {
+      const notes = [...new Set(group.rows.map(row => clean(row.notes)))];
+      const note = notes.length === 1 ? notes[0] : "";
+      const subjects = [];
+      group.rows.forEach(row => {
+        const course = clean(row.course), institution = clean(row.institution);
+        let subject = subjects.find(item => item.course === course && item.institution === institution);
+        if (!subject) subjects.push(subject = { course, institution, terms: [] });
+        const term = { period: clean(row.period), role: clean(row.role), hours: clean(row.hours), topics: clean(row.topics), notes: note ? "" : clean(row.notes) };
+        if (!subject.terms.some(item => Object.keys(term).every(key => item[key] === term[key]))) subject.terms.push(term);
+      });
+      subjects.forEach(subject => subject.terms.sort((a, b) => periodKey(b.period) - periodKey(a.period)));
+      subjects.sort((a, b) => periodKey(b.terms[0].period) - periodKey(a.terms[0].period));
+      return { level: group.level, note, subjects };
+    });
+  };
+
   // ---------- CV options ----------
   const CV_SECTIONS = ["contact", "research interests", "education", "publications", "fellowships and awards", "talks", "research visits", "teaching", "schools attended", "referees"];
   const sectionName = value => clean(value).toLowerCase().replace(/\s+/g, " ");
@@ -218,7 +272,7 @@
     clean, esc, rich, plain, hasContent, isPlaceholder, arxivId, doiOf, yesNo,
     parseCsv, loadSheet,
     yearOf, splitAuthors, isJournal, journalName, shortRef, mergePublications, findPaper, paperRefs, bibtex,
-    groupResearch, isPoster, groupTalks, attendedEvents, teachingByInstitution,
+    groupResearch, isPoster, groupTalks, attendedEvents, teachingByInstitution, teachingByLevel,
     CV_SECTIONS, cvSettings,
   };
 })(typeof window !== "undefined" ? window : globalThis);

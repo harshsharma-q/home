@@ -226,18 +226,34 @@
   };
 
   // ---------- teaching ----------
-  // Teaching assistantships, grouped by institution. A note that all of an institution's rows
-  // share is shown once under its name; each course and term is its own row.
+  // Teaching grouped by course level; within a level, the subjects taught, each followed by the
+  // terms it was taught in. Details that every term of a subject shares (role, hours, topics,
+  // note) are shown once under the subject; details that differ are shown beside each term.
   const renderTeaching = rows => {
-    $("teaching-list").innerHTML = S.teachingByInstitution(rows).map(group => {
-      const list = datedBlock(group.rows, row => {
-        const role = /^teaching assistant$/i.test(clean(row.role)) ? "" : row.role;
-        const hours = /^\d+(?:\.\d+)?$/.test(clean(row.hours)) ? `${clean(row.hours)} hours` : row.hours;
-        const meta = [role, row.level, hours].map(clean).filter(Boolean).map(esc).join(" · ");
-        const topics = clean(row.topics) ? `<small>Topics: ${rich(row.topics)}</small>` : "";
-        return datedRow(row.period, `<strong>${esc(row.course)}</strong>${meta ? `<small>${meta}</small>` : ""}${topics}${detail(row.notes)}`);
-      });
-      return `<div class="teaching-group"><h3>${esc(group.institution)}</h3>${group.note ? `<p class="section-lead">${rich(group.note)}</p>` : ""}${list}</div>`;
+    const roleText = role => /^teaching assistant$/i.test(role) ? "" : role;
+    const hoursText = hours => /^\d+(?:\.\d+)?$/.test(hours) ? `${hours} hours` : hours;
+    const DETAILS = ["role", "hours", "topics", "notes"];
+    const describe = (term, keys) => [
+      keys.includes("role") && roleText(term.role),
+      keys.includes("hours") && hoursText(term.hours),
+      keys.includes("topics") && term.topics && `Topics: ${term.topics}`,
+      keys.includes("notes") && term.notes,
+    ].filter(Boolean).map(rich).join(" · ");
+    $("teaching-list").innerHTML = S.teachingByLevel(rows).map(group => {
+      const items = group.subjects.map(subject => {
+        const shared = DETAILS.filter(key => new Set(subject.terms.map(term => term[key])).size === 1);
+        const varying = DETAILS.filter(key => !shared.includes(key));
+        const first = subject.terms[0];
+        const meta = [esc(subject.institution), describe(first, shared.filter(key => key === "role" || key === "hours"))].filter(Boolean).join(" · ");
+        const sharedNotes = ["topics", "notes"].filter(key => shared.includes(key)).map(key => describe(first, [key])).filter(Boolean).map(text => `<small>${text}</small>`).join("");
+        const terms = subject.terms.map(term => {
+          const extra = describe(term, varying);
+          return `<span class="term">${esc(term.period)}${extra ? `<span class="term-detail"> · ${extra}</span>` : ""}</span>`;
+        });
+        const termList = `<small class="teaching-terms${varying.length ? " stacked" : ""}">${terms.join(varying.length ? "" : '<span class="sep" aria-hidden="true"> · </span>')}</small>`;
+        return `<li><strong>${esc(subject.course)}</strong>${meta ? `<small>${meta}</small>` : ""}${sharedNotes}${termList}</li>`;
+      }).join("");
+      return `<div class="teaching-group"><h3>${esc(group.level || "Other courses")}</h3>${group.note ? `<p class="section-lead">${rich(group.note)}</p>` : ""}<ul class="compact subjects">${items}</ul></div>`;
     }).join("") || `<p class="placeholder-note">To be added.</p>`;
   };
 
